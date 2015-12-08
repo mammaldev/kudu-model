@@ -55,6 +55,10 @@ describe('Kudu BaseModel', () => {
       expect(new Model(app, { id: 1 })).to.have.property('id', 1);
     });
 
+    it('should default unprovided data where possible', () => {
+      expect(new Child(app)).to.have.property('defaults', 'default');
+    });
+
     it('should handle nested model instances based on relationships', () => {
       expect(new Model(app, { id: 1, child: { id: 2 } })).to.have.property('child')
         .that.is.an.instanceOf(Child);

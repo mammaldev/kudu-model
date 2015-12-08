@@ -47,6 +47,19 @@ export default class BaseModel {
         this[ key ] = value;
       }
     });
+
+    // Any properties that are present in the schema but not provided by the
+    // initial data object are set to their default values where possible.
+    const properties = this.constructor.schema.properties || {};
+
+    Object.keys(properties).forEach(( key ) => {
+
+      const value = properties[ key ].default;
+
+      if ( value && this[ key ] === undefined ) {
+        this[ key ] = value;
+      }
+    });
   }
 
   // Prepare a model instance for serialisation to a JSON string. We make a
