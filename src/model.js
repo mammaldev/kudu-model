@@ -11,7 +11,7 @@ export default class BaseModel {
     // relationships of the model are used to determine whether a particular key
     // refers to a nested model instance. Any nested instances are recursively
     // instantiated.
-    const relationships = this.constructor.schema.relationships;
+    const relationships = this.constructor.schema.relationships || {};
 
     Object.keys(data).forEach(( key ) => {
 

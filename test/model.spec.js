@@ -1,66 +1,77 @@
 import chai from 'chai';
-import Kudu from 'kudu';
 import BaseModel from '../src/model';
 
 let expect = chai.expect;
 
 describe('Kudu BaseModel', () => {
 
-  let kudu;
+  let MockApp;
+  let Model;
+  let Child;
+  let app;
 
   beforeEach(() => {
-    kudu = new Kudu();
-  });
 
-  describe('instances', () => {
+    Child = class extends BaseModel {
 
-    let Model;
-    let Child;
+      static schema = {
+        properties: {
+          defaults: {
+            type: String,
+            default: 'default',
+          },
+        },
+      }
+    };
 
-    beforeEach(() => {
-      Child = kudu.createModel('child', {});
-      Model = kudu.createModel('test', {
+    Model = class extends BaseModel {
+
+      static schema = {
         relationships: {
           child: { type: 'child' },
           children: { type: 'child', hasMany: true },
         },
-      });
-    });
+      }
+    }
 
-    it('should inherit from the base Model constructor', () => {
-      expect(new Model()).to.be.an.instanceOf(BaseModel);
+    MockApp = class {
+      getModel( type ) {
+        if ( type === 'child' ) {
+          return Child;
+        }
+      }
+    }
+
+    app = new MockApp();
+  });
+
+  describe('instances', () => {
+
+    it('should expose a reference to the Kudu app', () => {
+      expect(new Model(app)).to.have.property('app', app);
     });
 
     it('should map provided data onto the instance', () => {
-      expect(new Model({ id: 1 })).to.have.property('id', 1);
+      expect(new Model(app, { id: 1 })).to.have.property('id', 1);
     });
 
     it('should handle nested model instances based on relationships', () => {
-      expect(new Model({ id: 1, child: { id: 2 } })).to.have.property('child')
+      expect(new Model(app, { id: 1, child: { id: 2 } })).to.have.property('child')
         .that.is.an.instanceOf(Child);
     });
 
     it('should handle arrays of nested instances based on relationships', () => {
-      let instance = new Model({ id: 1, children: [ { id: 2 } ] });
+      let instance = new Model(app, { id: 1, children: [ { id: 2 } ] });
       expect(instance.children[ 0 ]).to.be.an.instanceOf(Child);
     });
   });
 
   describe('#toJSON', () => {
 
-    let Model;
     let instance;
 
     beforeEach(() => {
-      Model = kudu.createModel('test', {
-        properties: {
-          name: {
-            type: String,
-            required: true,
-          },
-        },
-      });
-      instance = new Model({ type: 'test', name: 'test' });
+      instance = new Model(app, { type: 'test', name: 'test' });
     });
 
     it('should remove the reference to the Kudu app from the instance', () => {
