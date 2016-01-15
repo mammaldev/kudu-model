@@ -21,7 +21,7 @@ describe('Kudu BaseModel', () => {
             default: 'default',
           },
         },
-      }
+      };
     };
 
     Model = class extends BaseModel {
@@ -31,8 +31,8 @@ describe('Kudu BaseModel', () => {
           child: { type: 'child' },
           children: { type: 'child', hasMany: true },
         },
-      }
-    }
+      };
+    };
 
     MockApp = class {
       getModel( type ) {
@@ -40,7 +40,7 @@ describe('Kudu BaseModel', () => {
           return Child;
         }
       }
-    }
+    };
 
     app = new MockApp();
   });
